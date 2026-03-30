@@ -1,0 +1,49 @@
+resources:
+  pipelines:
+    traffic_pipeline:
+      name: "[${bundle.target}] TransLink Traffic Pipeline"
+      catalog: "${var.catalog}"
+      target: "${var.schema}"
+      development: true
+      channel: CURRENT
+      serverless: true
+      photon: true
+      configuration:
+        catalog: "${var.catalog}"
+        schema: "${var.schema}"
+        volume: "${var.volume}"
+      libraries:
+        # Bronze — Synthetic GTFS ingestion
+        - notebook:
+            path: ../src/pipeline/bronze_gtfs_routes.sql
+        - notebook:
+            path: ../src/pipeline/bronze_gtfs_stops.sql
+        - notebook:
+            path: ../src/pipeline/bronze_gtfs_trips.sql
+        - notebook:
+            path: ../src/pipeline/bronze_gtfs_stop_times.sql
+        # Bronze — Synthetic traffic API data
+        - notebook:
+            path: ../src/pipeline/bronze_traffic_api.sql
+        # Silver — GTFS (Auto CDC)
+        - notebook:
+            path: ../src/pipeline/silver_gtfs_routes.sql
+        - notebook:
+            path: ../src/pipeline/silver_gtfs_stops.sql
+        # Silver — Derived views
+        - notebook:
+            path: ../src/pipeline/silver_gtfs_scheduled_times.sql
+        - notebook:
+            path: ../src/pipeline/silver_traffic_readings.sql
+        # Gold — Materialized views (analytics)
+        - notebook:
+            path: ../src/pipeline/gold_schedule_vs_actual.sql
+        - notebook:
+            path: ../src/pipeline/gold_route_delay_patterns.sql
+        - notebook:
+            path: ../src/pipeline/gold_corridor_daily_summary.py
+        - notebook:
+            path: ../src/pipeline/gold_congestion_patterns.py
+      permissions:
+        - level: CAN_VIEW
+          group_name: "users"

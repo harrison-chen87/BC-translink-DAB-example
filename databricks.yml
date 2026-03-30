@@ -1,0 +1,26 @@
+bundle:
+  name: translink_DAB_example
+
+variables:
+  catalog:
+    description: Unity Catalog catalog name
+  schema:
+    description: Schema name for pipeline output tables
+    default: vancouver_traffic
+  volume:
+    description: Volume name for synthetic data files
+    default: traffic_data
+
+workspace:
+  root_path: /Workspace/Shared/.bundle/${workspace.current_user.short_name}/${bundle.name}
+  profile: "translink-hack"
+
+include:
+  - resources/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+  prod:
+    mode: production
